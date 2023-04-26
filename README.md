@@ -10,7 +10,24 @@ Easily turn piano tutorials into music sheet
 
 To compile this project you need [cargo](https://doc.rust-lang.org/cargo/index.html) and [opencv](https://opencv.org/).
 
-- [Compile OpenCV generating a pkg-config file](https://github.com/opencv/opencv/issues/13154#issuecomment-456652297)
+### Install some dependencies
+
+``` bash
+sudo apt install libclang-dev
+sudo apt install llvm
+sudo apt install pkg-config
+sudo apt install libgtk2.0-dev
+```
+
+
+### Install OpenCV 
+
+OpenCV Installation info: https://docs.opencv.org/4.x/d7/d9f/tutorial_linux_install.html
+
+**However** be sure to to add the ```-D OPENCV_GENERATE_PKGCONFIG=YES ``` cmake arguement as outlined in addtional detail here --> [Compile OpenCV generating a pkg-config file](https://github.com/opencv/opencv/issues/13154#issuecomment-456652297)
+
+
+### Other instructions
 
 - Clone this repository
 

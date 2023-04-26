@@ -32,7 +32,7 @@ impl Piano {
 		let mut result: Mat = Mat::new_rows_cols_with_default(image.rows()-template.rows()+1, image.cols()-template.cols()+1, CV_32FC1, Scalar::all(0.0)).unwrap();
 			
 		// Do the Matching
-		match_template(&image, &template, &mut result, TM_SQDIFF_NORMED, &Mat::default().unwrap()).unwrap();
+		match_template(&image, &template, &mut result, TM_SQDIFF_NORMED, &Mat::default()).unwrap();
 		
 		// Vector to store the found octaves
 		let mut octaves: Vec<Octave> = Vec::new();
@@ -42,7 +42,7 @@ impl Piano {
 		let mut thresh: f64 = 0.0;
 		let thresh_step: f64 = 0.02;
 		loop {
-			let mut threshold_result = Mat::default().unwrap();
+			let mut threshold_result = Mat::default();
 			threshold(&result, &mut threshold_result, thresh, 1.0, THRESH_BINARY).unwrap();
 			
 			// Loop to store in the octaves vector every found match
@@ -53,7 +53,7 @@ impl Piano {
 				let mut min_loc: Point = Point {x: 0, y: 0};
 				let mut max_loc: Point = Point {x: 0, y: 0};
 
-				min_max_loc(&threshold_result, &mut min_val, &mut max_val, &mut min_loc, &mut max_loc, &Mat::default().unwrap()).unwrap();
+				min_max_loc(&threshold_result, Some(&mut min_val), Some(&mut max_val), Some(&mut min_loc), Some(&mut max_loc), &Mat::default()).unwrap();
 				
 				// Stop if there are no matches
 				if max_val==min_val {break;}
@@ -95,7 +95,7 @@ impl Piano {
 	
 	fn sort_octaves(&mut self, image: &Mat) {
 		// Convert image to grayscale
-		let mut image_gray: Mat = Mat::default().unwrap();
+		let mut image_gray: Mat = Mat::default();
 		cvt_color(&image, &mut image_gray, COLOR_RGB2GRAY, 0).unwrap();
 
 		// Order octaves from lowest to highest
@@ -137,7 +137,7 @@ impl Piano {
 	}
 	
 	pub fn draw_notes(&self, image: &Mat) -> Mat {
-		let mut image_show_octaves = Mat::default().unwrap();
+		let mut image_show_octaves = Mat::default();
 		image.copy_to(&mut image_show_octaves).unwrap();
 		
 		for octave in &self.octaves {			
@@ -160,7 +160,7 @@ impl Piano {
 
 fn get_scaled_template(image: &Mat, template: &Mat) -> Mat {
 	// Make Mat to store the scaled image
-	let mut image_scaled: Mat = Mat::default().unwrap();
+	let mut image_scaled: Mat = Mat::default();
 
 	// Variables to store the best match size and match value
 	let mut found_scaled_width = template.size().unwrap().width;
@@ -175,8 +175,8 @@ fn get_scaled_template(image: &Mat, template: &Mat) -> Mat {
 		resize(&image, &mut image_scaled, Size {width: scaled_width, height: scaled_height}, 0.0, 0.0, INTER_NEAREST).unwrap();
 		
 		// Do the Matching
-		let mut result_scaled: Mat = Mat::default().unwrap();
-		match_template(&image_scaled, &template, &mut result_scaled, TM_SQDIFF_NORMED, &Mat::default().unwrap()).unwrap();
+		let mut result_scaled: Mat = Mat::default();
+		match_template(&image_scaled, &template, &mut result_scaled, TM_SQDIFF_NORMED, &Mat::default()).unwrap();
 		
 		// Localizing the best match with minMaxLoc
 		let mut min_val: f64 = 0.0;
@@ -184,7 +184,7 @@ fn get_scaled_template(image: &Mat, template: &Mat) -> Mat {
 		let mut min_loc: Point = Point {x: 0, y: 0};
 		let mut max_loc: Point = Point {x: 0, y: 0};
 
-		min_max_loc(&result_scaled, &mut min_val, &mut max_val, &mut min_loc, &mut max_loc, &Mat::default().unwrap()).unwrap();
+		min_max_loc(&result_scaled, Some(&mut min_val), Some(&mut max_val), Some(&mut min_loc), Some(&mut max_loc), &Mat::default()).unwrap();
 		
 		// Store match if it's better than the previously stored match (Lower = Better)
 		if min_val < found_min_val {
@@ -201,7 +201,7 @@ fn get_scaled_template(image: &Mat, template: &Mat) -> Mat {
 	}
 	
 	
-	let mut scaled_template: Mat = Mat::default().unwrap();
+	let mut scaled_template: Mat = Mat::default();
 	let scale = image.size().unwrap().width / found_scaled_width;
 	
 	resize(&template, &mut scaled_template,

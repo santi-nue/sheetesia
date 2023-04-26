@@ -18,7 +18,7 @@ fn main() {
 	
 	let template: Mat = imread("res/template.png", IMREAD_COLOR).unwrap();
 
-	if !video.is_opened().unwrap() || template.empty().unwrap() {
+	if !video.is_opened().unwrap() || template.empty() {
 		println!(":(");
 		std::process::exit(1);
 	}
@@ -29,7 +29,7 @@ fn main() {
 	
 	// ----------------
 	// READ FIRST FRAME
-	let mut frame: Mat = Mat::default().unwrap();
+	let mut frame: Mat = Mat::default();
 	video.read(&mut frame).unwrap();
 	
 	// Find piano
