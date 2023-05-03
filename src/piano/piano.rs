@@ -126,10 +126,12 @@ impl Piano {
 		}
 
 		// Update note codes
+		// More info about note codes --> https://newt.phys.unsw.edu.au/jw/graphics/notes.GIF
+		// C4 = 60, C3 = 48, C5 = 72, etc...
 		let mut index_to_octave_number: u8 = /* middle C = C4 + 1 because midi*/ 5 - middle_c_octave_index as u8; // Add this to an octave index to get the octave number
 		if self.octaves.len()+1 != 7 {
 			println!("WARNING! Did not find 7 Octaves in provided video!");
-			let octave_offset: u8 = ((7-(self.octaves.len()+1))/2).try_into().unwrap();
+			let octave_offset: u8 = ((7-(self.octaves.len()+1))/2).try_into().unwrap(); // TODO: More testing needed here. Also will not work for midi's requiring A0 and B0
 			println!("Applying an octave offset of {}", octave_offset);
 			index_to_octave_number = index_to_octave_number + octave_offset;
 		}
