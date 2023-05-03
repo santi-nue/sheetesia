@@ -1,6 +1,8 @@
 use opencv::core::*;
 use opencv::imgproc::*;
 
+use std::convert::TryInto;
+
 use crate::piano::octave::*;
 
 pub const NOTE_C 		: usize = 0;
@@ -123,8 +125,14 @@ impl Piano {
 			}
 		}
 
-		// Update note codes		
-		let index_to_octave_number: u8 = /* middle C = C4 + 1 because midi*/ 5 - middle_c_octave_index as u8; // Add this to an octave index to get the octave number
+		// Update note codes
+		let mut index_to_octave_number: u8 = /* middle C = C4 + 1 because midi*/ 5 - middle_c_octave_index as u8; // Add this to an octave index to get the octave number
+		if self.octaves.len()+1 != 7 {
+			println!("WARNING! Did not find 7 Octaves in provided video!");
+			let octave_offset: u8 = ((7-(self.octaves.len()+1))/2).try_into().unwrap();
+			println!("Applying an octave offset of {}", octave_offset);
+			index_to_octave_number = index_to_octave_number + octave_offset;
+		}
 		
 		// Update note codes
 		let mut octave_index = 0;

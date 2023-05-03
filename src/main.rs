@@ -34,7 +34,8 @@ fn main() {
 	
 	// Find piano
 	println!("Finding piano...");
-	let mut piano: Piano = Piano::new(&frame, &template);	
+	let mut piano: Piano = Piano::new(&frame, &template);
+	println!("Piano has been found!");
 	
 	// ----------
 	// PLAY VIDEO
@@ -86,7 +87,7 @@ fn main() {
 
 	loop {
 		if !video.read(&mut frame).unwrap() {
-			println!("Donete");
+			println!("Done");
 			break;
 		}
 		
@@ -117,7 +118,7 @@ fn main() {
 					match result {
 						Ok(pressed) => {
 							if pressed {
-								println!("{}\tpressed \t@ frame {} of {}\t({:.2}%)", note.to_string(), frame_count, total_frames, (frame_count as f64 / total_frames)*100.0);
+								println!("{}\tpressed \tat second: {} \t@ frame {} of {}\t({:.2}%)", note.to_string(), (frame_count*ticks_per_frame)/1000, frame_count, total_frames, (frame_count as f64 / total_frames)*100.0);
 								midi_messages.push(
 									Message::MidiEvent {
 										delta_time: (frame_count - frame_count_on_last_event) * ticks_per_frame,
@@ -129,7 +130,7 @@ fn main() {
 									}
 								);
 							} else {
-								println!("{}\treleased\t@ frame {} of {}\t({:.2}%)", note.to_string(), frame_count, total_frames, (frame_count as f64 / total_frames)*100.0);
+								println!("{}\treleased \tat second: {} \t@ frame {} of {}\t({:.2}%)", note.to_string(), (frame_count*ticks_per_frame)/1000, frame_count, total_frames, (frame_count as f64 / total_frames)*100.0);
 								midi_messages.push(
 									Message::MidiEvent {
 										delta_time: (frame_count - frame_count_on_last_event) * ticks_per_frame,
