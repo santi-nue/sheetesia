@@ -26,7 +26,7 @@ lazy_static! {
 		Scalar::new(0f64,0f64,255f64,255f64)
 	};
 }
-const DEBUG: bool = true;
+const DEBUG: bool = false;
 fn main() {
 	// Load files
 	let video_path = std::env::args().nth(1).expect("Please provide a video as an argument");
