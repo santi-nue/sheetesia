@@ -1,4 +1,9 @@
+use std::collections::HashSet;
+
 use opencv::core::*;
+
+use super::piano::{NOTE_ASHARP, NOTE_CSHARP, NOTE_DSHARP, NOTE_FSHARP, NOTE_GSHARP};
+use std::convert::TryFrom;
 
 pub struct Octave {
 	pub notes: Vec<Note>,
@@ -9,10 +14,16 @@ pub struct Note {
 
 	pub location: Point,
 	pub default_color: Vec3b,
-
+    pub is_accidental: bool,
     pressed: bool
 }
-
+lazy_static!{
+    static ref ACCIDENTAL_NOTES : HashSet<usize> = {
+        let m = HashSet::from([NOTE_ASHARP, NOTE_CSHARP, NOTE_DSHARP, NOTE_FSHARP, NOTE_GSHARP]);
+        m
+    };
+}
+const NOTE_OFFSET: i32 = 50;
 impl Octave {
 
     pub fn new(octave_location: Point, image: &Mat, template: &Mat) -> Octave {
@@ -20,11 +31,11 @@ impl Octave {
         let octave_image = Mat::roi(&image, Rect::from_point_size(octave_location, template.size().unwrap())).unwrap();
         let pixel_diff_thresh = 100;
         // For each note in the octave
-        for note in 0..12 {
-
+        for note in 0usize..12usize {
+            
             // Variables to store the bounds of the current note
-            let mut min_x = (template.cols()*note)/12;
-            let mut max_x = (template.cols()*(note+1))/12;
+            let mut min_x = (template.cols()*i32::try_from(note).unwrap())/12;
+            let mut max_x = (template.cols()*(i32::try_from(note).unwrap()+1))/12;
 
             // For each pixel in the note's pixel range
             for x in min_x..max_x {
@@ -44,14 +55,14 @@ impl Octave {
                     if x > max_x {max_x = x;}
                 }
             }
-
+            let accidental = ACCIDENTAL_NOTES.contains(&note);
             let avg_x = (min_x+max_x)/2;
+            let y_offset = if accidental { -NOTE_OFFSET } else { NOTE_OFFSET };
             notes.push(Note {
                 code: note as u8,
-
-                location: octave_location + Point {x: avg_x, y: 0}, // Use a point in the middle
+                location: octave_location + Point {x: avg_x, y: y_offset}, // Use a point in the middle
                 default_color: *octave_image.at_2d(0, avg_x).unwrap(), // Color in that point
-
+                is_accidental: accidental,
                 pressed: false
             });
         }
