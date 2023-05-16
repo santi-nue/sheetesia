@@ -165,9 +165,12 @@ fn main() {
 
 		// Show frame
 		if key_pressed_or_released_in_this_frame {
+			imshow("Gabo", &frame).unwrap();
+			let key_pressed = wait_key(if DEBUG { 10000 } else {1}).unwrap();
 			if DEBUG {
-				imshow("Gabo", &frame).unwrap();
-				wait_key(1000000).unwrap();
+				if key_pressed == 113 {
+					break;
+				}
 			}
 		}
 
