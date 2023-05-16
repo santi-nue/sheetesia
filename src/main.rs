@@ -11,6 +11,8 @@ use std::path;
 mod piano;
 use crate::piano::piano::*;
 
+const DEBUG: bool = false;
+
 fn main() {
 	// Load files
 	let video_path = std::env::args().nth(1).expect("Please provide a video as an argument");
@@ -163,8 +165,10 @@ fn main() {
 
 		// Show frame
 		if key_pressed_or_released_in_this_frame {
-			imshow("Gabo", &frame).unwrap();
-			wait_key(1).unwrap();
+			if DEBUG {
+				imshow("Gabo", &frame).unwrap();
+				wait_key(1000000).unwrap();
+			}
 		}
 
 		// Increment frame count
