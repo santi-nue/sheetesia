@@ -1,7 +1,11 @@
+#[macro_use]
+extern crate lazy_static;
+
 use opencv::core::*;
 use opencv::imgcodecs::*;
+use opencv::imgproc::LINE_8;
 use opencv::videoio::*;
-
+use opencv::imgproc;
 use opencv::highgui::*;
 
 use ghakuf::messages::*;
@@ -11,8 +15,18 @@ use std::path;
 mod piano;
 use crate::piano::piano::*;
 
+lazy_static! {
+	static ref UNCHANGED: VecN<f64, 4> = {
+		Scalar::new(100f64,100f64,100f64,255f64)
+	};
+	static ref PRESSED: VecN<f64, 4> = {
+		Scalar::new(0f64,255f64,255f64,255f64)
+	};
+	static ref RELEASED: VecN<f64, 4> = {
+		Scalar::new(0f64,0f64,255f64,255f64)
+	};
+}
 const DEBUG: bool = false;
-
 fn main() {
 	// Load files
 	let video_path = std::env::args().nth(1).expect("Please provide a video as an argument");
@@ -107,6 +121,7 @@ fn main() {
 				for i in 0..3 {
 					diff_with_previous_frame += (note_color[i] as i32 - previous_frame_note_colors[octave_index][note_index][i] as i32).abs();
 				}
+				let mut color: VecN<f64, 4> = UNCHANGED.clone(); 
 
 				// If the color isn't close to the one in the previous frame
 				//	Check if the color is close to the default color (Key released) or not (key pressed)
@@ -131,6 +146,7 @@ fn main() {
 										},
 									}
 								);
+								color = PRESSED.clone();
 							} else {
 								println!("{}\treleased \tat second: {} \t@ frame {} of {}\t({:.2}%)", note.to_string(), (frame_count*ticks_per_frame)/1000, frame_count, total_frames, (frame_count as f64 / total_frames)*100.0);
 								midi_messages.push(
@@ -143,8 +159,8 @@ fn main() {
 										},
 									}
 								);
+								color = RELEASED.clone();
 							}
-
 							// Show frame
 							key_pressed_or_released_in_this_frame = true;
 
@@ -154,7 +170,12 @@ fn main() {
 						Err(_) => {}
 					};
 				}
-
+				if DEBUG {
+					imgproc::circle(&mut frame, Point {
+						x: note.location.x,
+						y: note.location.y,
+					}, 10, color,-1,LINE_8, 0).unwrap();
+				}
 				// Update previous frame pixel color
 				previous_frame_note_colors[octave_index][note_index] = note_color;
 				note_index = note_index+1;
