@@ -29,7 +29,6 @@ impl Piano {
 
 		// Scale template to fit the full image
 		let template: Mat = get_scaled_template(&image, &unscaled_template);
-
 		// Matrix to store the match_tempalte results
 		let mut result: Mat = Mat::new_rows_cols_with_default(image.rows()-template.rows()+1, image.cols()-template.cols()+1, CV_32FC1, Scalar::all(0.0)).unwrap();
 			

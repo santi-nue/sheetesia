@@ -30,9 +30,10 @@ const DEBUG: bool = false;
 fn main() {
 	// Load files
 	let video_path = std::env::args().nth(1).expect("Please provide a video as an argument");
+	let bpm: u32 = std::env::args().nth(2).unwrap_or("120".into()).parse().expect("Please provide an integer bpm if supplied");
 	let mut video: VideoCapture = VideoCapture::from_file(&video_path, CAP_ANY).unwrap();
 	
-	let template: Mat = imread("res/template.png", IMREAD_COLOR).unwrap();
+	let template: Mat = imread("res/template-partial.png", IMREAD_COLOR).unwrap();
 
 	if !video.is_opened().unwrap() || template.empty() {
 		println!(":(");
@@ -47,7 +48,7 @@ fn main() {
 	// READ FIRST FRAME
 	let mut frame: Mat = Mat::default();
 	video.read(&mut frame).unwrap();
-	
+	imshow("initial", &frame).unwrap();
 	// Find piano
 	println!("Finding piano...");
 	let mut piano: Piano = Piano::new(&frame, &template);
@@ -59,10 +60,11 @@ fn main() {
 
 	// MIDI variables
 	let path = path::Path::new("out.mid");
-	let microseconds_per_quarter_note: u32 = video.get(CAP_PROP_FPS).unwrap() as u32 * 1000000;
-	let ticks_per_quarter_note: u32 = 48;
-	let ticks_per_frame: u32 = video.get(CAP_PROP_FPS).unwrap() as u32;
-
+	let beats_per_second = (bpm as f64)/60f64;
+	let quarter_note_resolution = 480;
+	let microseconds_per_quarter_note: u32 = 60*1000000/bpm; // set bpm to 120
+	let ticks_per_frame: u32 = ((beats_per_second*quarter_note_resolution as f64)/video.get(CAP_PROP_FPS).unwrap()) as u32;
+	println!("ticks_per_frame={}", video.get(CAP_PROP_FPS).unwrap());
 	// MIDI messages
 	let mut midi_messages: Vec<Message> = vec![
 		// Set video FPS as tempo
@@ -186,9 +188,9 @@ fn main() {
 
 		// Show frame
 		if key_pressed_or_released_in_this_frame {
-			imshow("Gabo", &frame).unwrap();
-			let key_pressed = wait_key(if DEBUG { 10000 } else {1}).unwrap();
 			if DEBUG {
+				imshow("Gabo", &frame).unwrap();
+				let key_pressed = wait_key(if DEBUG { 10000 } else {1}).unwrap();
 				if key_pressed == 113 {
 					break;
 				}
