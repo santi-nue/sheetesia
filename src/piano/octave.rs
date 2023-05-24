@@ -24,26 +24,49 @@ lazy_static!{
     };
 }
 const NOTE_OFFSET: i32 = 50;
+
+
+
 impl Octave {
 
     pub fn new(octave_location: Point, image: &Mat, template: &Mat) -> Octave {
         let mut notes: Vec<Note> = Vec::new();
-        let octave_image = Mat::roi(&image, Rect::from_point_size(octave_location, template.size().unwrap())).unwrap();
+        let original_template_size = template.size().unwrap();
+        let original_width = original_template_size.width as f32;
+        let mut new_size = Size{
+            height: original_template_size.height,
+            width: (original_width/11.0*12.0) as i32,
+        };
+        if octave_location.x + new_size.width > image.cols() {
+            // if our new width would be greater than the image dims
+            // then clamp the width to the remaining cols
+            new_size.width = image.cols() - octave_location.x;
+        }
+
+        let new_cols = new_size.width;
+        let octave_image = Mat::roi(&image, Rect::from_point_size(octave_location, new_size)).unwrap();
         let pixel_diff_thresh = 100;
+        
         // For each note in the octave
         for note in 0usize..12usize {
             
             // Variables to store the bounds of the current note
-            let mut min_x = (template.cols()*i32::try_from(note).unwrap())/12;
-            let mut max_x = (template.cols()*(i32::try_from(note).unwrap()+1))/12;
+            let mut min_x = (new_cols*i32::try_from(note).unwrap())/12;
+            let mut max_x = (new_cols*(i32::try_from(note).unwrap()+1))/12 - 1;
 
             // For each pixel in the note's pixel range
             for x in min_x..max_x {
                 // Check for a pixel whose color is close to
                 //	the color of the templates' pixel in the same position
                 let octave_pixel: Vec3b = *octave_image.at_2d(0, x).unwrap();
-                let template_pixel: Vec3b = *template.at_2d(0, x).unwrap();
-
+                let template_pixel: Vec3b;
+                if note < 11usize {
+                    template_pixel = *template.at_2d(0, x).unwrap();
+                } else {
+                    // Don't check on template for the 12th note, we know it's white
+                    // and we remove the 12th note so we can detect the last octave.
+                    template_pixel = VecN::<u8, 3>([255u8, 255u8,255u8])
+                }
                 // If the color is close (difference < the thresh)
                 //	Add note to the notes vector and stop looping
                 let mut pixel_diff: i32 = 0;
