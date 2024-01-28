@@ -1,0 +1,28 @@
+name: CI
+
+on: [push]
+
+jobs:
+  translations:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: Install packages
+      run: |
+        apt-get install libclang-dev
+        apt-get install llvm
+        apt-get install pkg-config
+        apt-get install libgtk2.0-dev
+
+
+    - uses: Dovyski/setup-opencv-action@v1.1
+      with:
+        opencv-version: 4.0.0
+        ENABLE_PRECOMPILED_HEADERS: OFF
+        GENERATE_PKGCONFIG: ON
+
+    - uses: actions-rs/toolchain@v1
+      with:
+        toolchain: stable
+    - run: cargo build --release --all-features        
