@@ -4,7 +4,7 @@ on: [push]
 
 jobs:
   translations:
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
     steps:
     - uses: actions/checkout@v2
 
@@ -14,7 +14,7 @@ jobs:
         sudo apt-get install -y llvm
         sudo apt-get install -y pkg-config
         sudo apt-get install -y libgtk2.0-dev
-        sudo apt-get install -y libfreetype6=2.10.1-2ubuntu0.1
+        sudo apt-get install -y libfreetype6
         sudo apt-get install -y libfreetype-dev
         sudo apt-get install -y libfreetype6-dev
 
