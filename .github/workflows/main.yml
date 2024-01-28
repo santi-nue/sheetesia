@@ -18,7 +18,7 @@ jobs:
 
     - uses: Dovyski/setup-opencv-action@v1.1
       with:
-        opencv-version: 4.0.0
+        opencv-version: 4.9.0
         ENABLE_PRECOMPILED_HEADERS: OFF
         GENERATE_PKGCONFIG: ON
 
