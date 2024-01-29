@@ -25,11 +25,10 @@ jobs:
         ENABLE_PRECOMPILED_HEADERS: OFF
         GENERATE_PKGCONFIG: ON
 
-    - uses: actions-rs/toolchain@v1
-      with:
-            toolchain: stable
-            override: true
-            components: rustfmt, clippy
+
+
+
+    - uses: dtolnay/rust-toolchain@stable
 
        
     - run: cargo build --release      
